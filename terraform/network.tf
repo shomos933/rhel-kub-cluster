@@ -3,8 +3,8 @@ resource "libvirt_network" "k8s_net" {
   autostart = true
   mode      = "nat"
 
-  # адрес «моста» в этой сети
-  addresses = ["192.168.123.1/24"]
+  # адрес сети
+  addresses = ["192.168.123.0/24"]
 
 }
 
