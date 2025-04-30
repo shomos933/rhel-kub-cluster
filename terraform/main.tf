@@ -12,7 +12,10 @@ terraform {
 }
 
 provider "libvirt" {
-  uri = "qemu:///system"
+  # подключаемся по SSH к хосту 192.168.0.137 и используем /system socket там
+  uri = "qemu+ssh://root@hypervisor/system"
+  # (при необходимости можно ещё указать path к конкретному socket:
+  #  uri = "qemu+ssh://root@hypervisor/system?socket=/var/run/libvirt/libvirt-sock")
 }
 
 
