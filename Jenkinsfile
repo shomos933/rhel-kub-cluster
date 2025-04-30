@@ -1,10 +1,9 @@
-// jenkins который к корне репозитория
 pipeline {
   agent any
 
   environment {
-    SSH_CRED = "jenkins-slave-ssh"
-    TER_DIR = 'terraform'
+    SSH_CREDENTIALS_ID = 'jenkins-slave-ssh'
+    TERRAFORM_DIR      = 'terraform'
   }
 
   stages {
@@ -16,8 +15,8 @@ pipeline {
 
     stage('Init Terraform') {
       steps {
-        dir("${env.TER_DIR}") {
-          sshagent (credentials: [env.SSH_CRED]) {
+        dir("${env.TERRAFORM_DIR}") {
+          sshagent (credentials: [env.SSH_CREDENTIALS_ID]) {
             sh 'terraform init'
           }
         }
@@ -26,8 +25,8 @@ pipeline {
 
     stage('Terraform Plan') {
       steps {
-        dir("${env.TER_DIR}") {
-          sshagent (credentials: [env.SSH_CRED]) {
+        dir("${env.TERRAFORM_DIR}") {
+          sshagent (credentials: [env.SSH_CREDENTIALS_ID]) {
             sh 'terraform plan -out=tfplan'
           }
         }
@@ -36,23 +35,18 @@ pipeline {
 
     stage('Terraform Apply') {
       steps {
-        dir("${env.TER_DIR}") {
-          sshagent (credentials: [env.SSH_CRED] {
+        dir("${env.TERRAFORM_DIR}") {
+          sshagent (credentials: [env.SSH_CREDENTIALS_ID]) {
             sh 'terraform apply -auto-approve tfplan'
           }
         }
       }
     }
+  }
 
-    post {
-      success {
-        echo "Kubernetes cluster created successfully!"
-    }
-      failure {
-        echo "Something went wrong, check the logs."
-    }
+  post {
+    success { echo "K8s cluster created!" }
+    failure { echo "Build failed, check logs." }
   }
 }
-}
-
 
