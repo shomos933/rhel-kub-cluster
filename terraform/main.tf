@@ -56,7 +56,7 @@ resource "libvirt_volume" "master_disk" {
 
 resource "null_resource" "resize_master_disk" {
   provisioner "local-exec" {
-    command = "qemu-img resize /home/shom/virsh_HDD/${var.storage_pool}/${var.master.hostname}.qcow2 ${var.master.disk_size}G"
+    command = "sudo qemu-img resize /home/shom/virsh_HDD/${var.storage_pool}/${var.master.hostname}.qcow2 ${var.master.disk_size}G"
   }
   depends_on = [ libvirt_volume.master_disk ]
 }
@@ -122,7 +122,7 @@ resource "libvirt_volume" "worker_disk" {
 resource "null_resource" "resize_worker_disk" {
   count = length(var.workers)
   provisioner "local-exec" {
-    command = "qemu-img resize /home/shom/virsh_HDD/${var.storage_pool}/${var.workers[count.index].hostname}.qcow2 ${var.workers[count.index].disk_size}G"
+    command = "sudo qemu-img resize /home/shom/virsh_HDD/${var.storage_pool}/${var.workers[count.index].hostname}.qcow2 ${var.workers[count.index].disk_size}G"
   }
   depends_on = [ libvirt_volume.worker_disk ]
 }
