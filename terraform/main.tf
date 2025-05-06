@@ -49,6 +49,7 @@ data "template_file" "worker_ci" {
 resource "libvirt_volume" "master_disk" {
    name   = "${var.master.hostname}.qcow2"
    pool   = libvirt_pool.k8s_pool.name
+   depends_on = [ libvirt_pool.k8s_pool ]
    source = var.vm_image_path
    format = "qcow2"
 }
@@ -68,6 +69,7 @@ resource "time_sleep" "wait_after_resize_master" {
 
 resource "libvirt_cloudinit_disk" "master_iso" {
   name      = "${var.master.hostname}-cloudinit.iso"
+  depends_on = [ libvirt_pool.k8s_pool ]
   pool      = libvirt_pool.k8s_pool.name
   user_data = data.template_file.master_ci.rendered
 }
@@ -110,6 +112,7 @@ resource "libvirt_domain" "master" {
 
 resource "libvirt_volume" "worker_disk" {
   count  = length(var.workers)
+  depends_on = [ libvirt_pool.k8s_pool ]
   name   = "${var.workers[count.index].hostname}.qcow2"
   pool   = libvirt_pool.k8s_pool.name
   source = var.vm_image_path
@@ -132,6 +135,7 @@ resource "time_sleep" "wait_after_resize_worker" {
 
 resource "libvirt_cloudinit_disk" "worker_iso" {
   count     = length(var.workers)
+  depends_on = [ libvirt_pool.k8s_pool ]
   name      = "${var.workers[count.index].hostname}-cloudinit.iso"
   pool      = libvirt_pool.k8s_pool.name
   user_data = data.template_file.worker_ci[count.index].rendered
