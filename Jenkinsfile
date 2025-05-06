@@ -1,44 +1,34 @@
 pipeline {
-  agent any
+  // 1) глобально на весь пайплайн
+  agent { label "hypervisor" }
 
   environment {
-    SSH_CREDENTIALS_ID = 'jenkins-slave-ssh'
-    TERRAFORM_DIR      = 'terraform'
+    TERRAFORM_DIR = 'terraform'
   }
 
   stages {
     stage('Checkout') {
-      steps {
-        checkout scm
-      }
+      steps { checkout scm }
     }
 
     stage('Init Terraform') {
       steps {
         dir("${env.TERRAFORM_DIR}") {
-          sshagent (credentials: [env.SSH_CREDENTIALS_ID]) {
-            sh 'terraform init'
-          }
+          sh 'terraform init'
         }
       }
     }
-
     stage('Terraform Plan') {
       steps {
         dir("${env.TERRAFORM_DIR}") {
-          sshagent (credentials: [env.SSH_CREDENTIALS_ID]) {
-            sh 'terraform plan -out=tfplan'
-          }
+          sh 'terraform plan -out=tfplan'
         }
       }
     }
-
     stage('Terraform Apply') {
       steps {
         dir("${env.TERRAFORM_DIR}") {
-          sshagent (credentials: [env.SSH_CREDENTIALS_ID]) {
-            sh 'terraform apply -auto-approve tfplan'
-          }
+          sh 'terraform apply -auto-approve tfplan'
         }
       }
     }
